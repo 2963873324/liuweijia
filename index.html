@@ -46,7 +46,20 @@
             word-break: break-word;
             overflow-x:hidden;
         }
- 
+        main.app {
+            padding-top: 90px;
+        }
+        @media (max-width: 960px) {
+            main.app {
+        /*手机导航换行变高，加大上边距，解决文字被导航盖住*/
+                padding-top: 180px;
+            }
+        }
+        html {
+            scroll-padding-top: 180px;
+        }
+
+
         button,
         input {
             font: inherit;
