@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目视频馆</title>
+    <style>
+        :root {
+            --primary: #1b4332;
+            --primary-dark: #0f2d20;
+            --accent: #40916c;
+            --accent-soft: #d8f3dc;
+            --bg: #f7f8f4;
+            --card: #ffffff;
+            --text: #24312b;
+            --muted: #66736b;
+            --line: #e3e8df;
+            --shadow: 0 18px 46px rgba(27, 67, 50, 0.12);
+            --radius: 22px;
+            --home-bg-image: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80");
+        }
+ 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+ 
+        html {
+            scroll-behavior: smooth;
+        }
+ 
+        body {
+            min-height: 100vh;
+            font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(64, 145, 108, 0.18), transparent 34rem),
+                radial-gradient(circle at top right, rgba(216, 243, 220, 0.7), transparent 34rem),
+                var(--bg);
+            line-height: 1.7;
+        }
+ 
+        button,
+        input {
+            font: inherit;
+        }
+ 
+        button {
+            border: 0;
+        }
+ 
+        .app {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 100px 0 56px;
+        }
+ 
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(227, 232, 223, 0.86);
+        }
+ 
+        .topbar-inner {
+            width: min(1180px, calc(100% - 32px));
+            min-height: 76px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+ 
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: var(--primary);
+            white-space: nowrap;
+            cursor: pointer;
+        }
+ 
+        .brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: grid;
+            place-items: center;
+            color: white;
+            box-shadow: 0 10px 26px rgba(27, 67, 50, 0.24);
+        }
+ 
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+ 
+        .nav-link,
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 8px 15px;
+            border-radius: 999px;
+            color: var(--text);
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s ease;
+            background: transparent;
+        }
+ 
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+            background: var(--accent-soft);
+        }
+ 
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+ 
+        .btn:hover {
+            transform: translateY(-1px);
+            background: var(--primary-dark);
+        }
+ 
+        .btn.secondary {
+            background: white;
+            color: var(--primary);
+            border: 1px solid rgba(27, 67, 50, 0.18);
+        }
+ 
+        .btn.secondary:hover {
+            background: #edf7ef;
+        }
+ 
+        .top-search {
+            position: relative;
+            width: min(310px, 28vw);
+        }
+ 
+        .search-input {
+            width: 100%;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            outline: none;
+            background: white;
+            color: var(--text);
+            box-shadow: 0 8px 24px rgba(31, 41, 55, 0.04);
+        }
+ 
+        .search-input:focus {
+            border-color: rgba(64, 145, 108, 0.5);
+            box-shadow: 0 0 0 4px rgba(64, 145, 108, 0.12);
+        }
+ 
+        .page {
+            display: none;
+        }
+ 
+        .page.active {
+            display: block;
+        }
+ 
+        #homePage.active {
+            min-height: calc(100vh - 156px);
+            display: grid;
+            align-items: center;
+        }
+ 
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: calc(100vh - 156px);
+            border-radius: 34px;
+            padding: clamp(38px, 8vw, 96px);
+            display: grid;
+            align-items: center;
+            background:
+                linear-gradient(90deg, rgba(6, 24, 16, 0.82), rgba(17, 61, 43, 0.58), rgba(17, 61, 43, 0.18)),
+                var(--home-bg-image);
+            background-size: cover;
+            background-position: center;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+ 
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.16), transparent 28rem);
+            pointer-events: none;
+        }
+ 
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            text-shadow: 0 3px 18px rgba(0, 0, 0, 0.28);
+        }
+ 
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.13);
+            font-size: 0.9rem;
+            margin-bottom: 18px;
+        }
+ 
+        .hero h1 {
+            font-size: clamp(2rem, 6vw, 4.4rem);
+            line-height: 1.08;
+            margin-bottom: 18px;
+            letter-spacing: -0.06em;
+        }
+ 
+        .hero p {
+            max-width: 720px;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 1.08rem;
+        }
+ 
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+ 
+        .section-title {
+            margin: 44px 0 18px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+ 
+        .section-title h2 {
+            font-size: clamp(1.55rem, 3vw, 2.2rem);
+            letter-spacing: -0.04em;
+        }
+ 
+        .section-title p {
+            color: var(--muted);
+        }
+ 
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 18px;
+        }
+ 
+        .panel,
+        .intro-card,
+        .video-card {
+            background: var(--card);
+            border: 1px solid rgba(227, 232, 223, 0.92);
+            border-radius: var(--radius);
+            box-shadow: 0 14px 38px rgba(31, 41, 55, 0.07);
+        }
+ 
+        .intro-card {
+            padding: 24px;
+        }
+ 
+        .intro-card h3 {
+            font-size: 1.22rem;
+            margin-bottom: 10px;
+        }
+ 
+        .intro-card p,
+        .intro-card li {
+            color: var(--muted);
+        }
+ 
+        .intro-card ul {
+            padding-left: 20px;
+        }
+ 
+        .stats {
+            display: grid;
+            gap: 12px;
+        }
+ 
+        .stat-item {
+            padding: 18px;
+            border-radius: 18px;
+            background: #f2f8f3;
+        }
+ 
+        .stat-item strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.7rem;
+            line-height: 1.2;
+        }
+ 
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+ 
+        .location-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+ 
+        .location-tab {
+            padding: 8px 15px;
+            border-radius: 999px;
+            color: var(--primary);
+            background: white;
+            border: 1px solid rgba(27, 67, 50, 0.16);
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+ 
+        .location-tab:hover,
+        .location-tab.active {
+            color: white;
+            background: var(--primary);
+        }
+ 
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+        }
+ 
+        .video-card {
+            overflow: hidden;
+            transition: 0.22s ease;
+        }
+ 
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+ 
+        .thumb {
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+            display: grid;
+            place-items: center;
+            color: var(--primary-dark);
+            font-weight: 800;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+ 
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+ 
+        .thumb span {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.86);
+            border-radius: 999px;
+            padding: 7px 14px;
+        }
+ 
+        .card-body {
+            padding: 18px;
+        }
+ 
+        .video-card h3 {
+            font-size: 1.18rem;
+            margin-bottom: 6px;
+        }
+ 
+        .desc {
+            color: var(--muted);
+            font-size: 0.94rem;
+            min-height: 48px;
+        }
+ 
+        .meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 14px 0;
+        }
+ 
+        .tag {
+            display: inline-flex;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #edf7ef;
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+ 
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+ 
+        .location-group {
+            margin-top: 24px;
+        }
+ 
+        .location-group h3 {
+            margin-bottom: 12px;
+            font-size: 1.35rem;
+        }
+
+        /* 修改：播放页面改为单列，水平居中，移除双栏 */
+        .watch-shell {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+ 
+        .panel {
+            padding: 20px;
+        }
+ 
+        .video-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 18px;
+            background: #0f172a;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            color: white;
+        }
+ 
+        video,
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+            background: #000;
+        }
+ 
+        .empty-video {
+            padding: 28px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.82);
+        }
+ 
+        .watch-info h1 {
+            margin: 18px 0 8px;
+            font-size: clamp(1.65rem, 4vw, 2.5rem);
+            letter-spacing: -0.04em;
+        }
+ 
+        .watch-info p {
+            color: var(--muted);
+        }
+ 
+        .empty-state {
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            background: white;
+            border: 1px dashed var(--line);
+            border-radius: var(--radius);
+        }
+ 
+        @media (max-width: 960px) {
+            .topbar-inner {
+                align-items: stretch;
+                flex-direction: column;
+                padding: 14px 0;
+            }
+ 
+            .nav-actions {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+ 
+            .top-search {
+                width: 100%;
+            }
+ 
+            .app {
+                padding-top: 170px;
+            }
+ 
+            .intro-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+ 
+        @media (max-width: 640px) {
+            .app {
+                width: min(100% - 24px, 1180px);
+            }
+ 
+            #homePage.active,
+            .hero {
+                min-height: calc(100vh - 194px);
+            }
+ 
+            .toolbar,
+            .section-title {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand" onclick="showHome()" role="button" tabindex="0">
+                <div class="brand-mark">档</div>
+                <span>档案寻踪</span>
+            </div>
+            <nav class="nav-actions" aria-label="主导航">
+                <button class="nav-link" onclick="showHome()">首页</button>
+                <button class="nav-link" onclick="showIntroPage()">项目介绍</button>
+                <button class="nav-link" onclick="showVideoPage()">视频专区</button>
+                <button class="nav-link" onclick="showLocationPage()">地点分类</button>
+                <div class="top-search">
+                    <input id="navSearchInput" class="search-input" placeholder="搜索视频" oninput="syncSearchFromNav()">
+                </div>
+            </nav>
+        </div>
+    </header>
+ 
+    <main class="app">
+        <section id="homePage" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="eyebrow">项目影像资料展示平台</div>
+                    <h1>用视频活化昆明档案、记录地方文化</h1>
+                    <p>项目希望能打造一本有温度、有证据的旅行手册，充当一位无声的向导，激活城市记忆。</p>
+                    <div class="hero-actions">
+                        <button class="btn" onclick="showIntroPage()">查看项目介绍</button>
+                        <button class="btn secondary" onclick="showVideoPage()">进入视频专区</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+ 
+        <section id="introPage" class="page">
+            <div class="section-title">
+                <div>
+                    <h2>项目介绍</h2>
+                    <p>本项目以“档案活化”为核心，聚焦昆明老街至西南联大旧址的历史文化脉络，打造一册兼具史料性与互动性的主题旅行地图册。
+地图册深度挖掘云南省档案馆、西南联大博物馆等机构的馆藏档案，将昆明老街经过云南大学至西南联大分为三条路线，如名人故居寻访线等，将碎片化史料转化为可视化的地理信息，精准标注历史地标与当代点位的对应关系。
+互动设计上，地图册设置“档案打卡”模块，增设“历史对话”便签页，供使用者记录探访感悟并贴于对应位置，形成动态生长的“当代档案”；同步开发轻量化版本，支持线上标注分享，实现线下探访与线上互动的联动。
+项目旨在通过“可触摸、可参与”的形式，让沉睡的档案成为连接历史与当下的纽带，助力昆明抗战文化与联大精神的传承传播。</p>
+                </div>
+            </div>
+            <div class="intro-grid">
+                <article class="intro-card">
+                    <h3>项目背景</h3>
+                    <p>漫步于熙攘的昆明老街、驻足于宁静的云南大学会泽院，脚下的石板路可能重叠着闻一多、朱自清等先辈的足迹，眼前的建筑无声地诉说着烽火弦歌的往事。然而，大多数游客乃至本地同学，对于这段深厚历史脉络知之甚少，现有的旅游资料或流于表面介绍，难以激发公众的深度探索欲望。这种历史遗迹在场与历史叙事缺席之间的张力，成为了本项目创作来源。项目希望能打造一本有温度、有证据的旅行手册，充当一位无声的向导，激活城市记忆。
+档案并非库房中冰冷的故纸堆，而是重构历史最可靠的基石。西南联大遗址的文物沉睡在馆中等待游客的驻足，项目将依托档案检索、鉴别与整理，系统挖掘散落在各级档案馆、图书馆中的老地图、建筑图纸、校史档案、往来书信等第一手材料，让历史建筑和人物故事的串联成脉络、有档可依。让证据说话、让文化传承。
+本项目基于深厚的文化价值与昆明旅游热点的现实需求、独特的档案学视角与创新方法论，旨在开发一本名为《故纸绘图·档案寻踪——从昆明老街到西南联大的互动式地图》的深度历史文化旅行手册。</p>
+                </article>
+                <aside class="intro-card stats">
+                    <div class="stat-item">
+                        <strong id="totalVideoCount">0</strong>
+                        <span>已收录视频</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="totalLocationCount">0</strong>
+                        <span>地点分类</span>
+                    </div>
+                </aside>
+                <article class="intro-card">
+                    <h3>网站内容</h3>
+                    <ul>
+                        <li>项目介绍：说明项目来源、目标和展示范围。</li>
+                        <li>视频专区：集中展示全部视频，支持搜索。</li>
+                        <li>地点分类：按照拍摄地点或资料来源地归类浏览。</li>
+                    </ul>
+                </article>
+                <article class="intro-card">
+                    <h3>如何更新视频</h3>
+                    <p>在页面底部的 <strong>videos</strong> 数组中添加或修改视频信息，填写标题、简介、地点、视频地址、封面图和标签即可。</p>
+                </article>
+            </div>
+        </section>
+ 
+        <section id="videoPage" class="page">
+            <div class="section-title">
+                <div>
+                    <h2>视频专区</h2>
+                    <p>点击视频卡片进入播放页。</p>
+                </div>
+                <span id="videoCount" class="tag"></span>
+            </div>
+ 
+            <div class="toolbar">
+                <input id="searchInput" class="search-input" placeholder="搜索视频标题、简介、地点或标签" oninput="syncSearchFromMain()">
+                <button class="btn secondary" onclick="clearSearch()">清空搜索</button>
+            </div>
+ 
+            <div class="location-tabs" id="locationTabs"></div>
+            <div id="videoList" class="grid"></div>
+        </section>
+ 
+        <section id="locationPage" class="page">
+            <div class="section-title">
+                <div>
+                    <h2>地点分类</h2>
+                    <p>按照视频拍摄地或资料来源地浏览。</p>
+                </div>
+            </div>
+            <div id="locationGroups"></div>
+        </section>
+ 
+        <section id="watchPage" class="page">
+            <!-- 删除右侧同地点视频aside，只剩主播放面板 -->
+            <div class="watch-shell">
+                <article class="panel">
+                    <button class="btn secondary" onclick="showVideoPage()">返回视频专区</button>
+                    <div class="video-frame" style="margin-top:16px;" id="videoFrame"></div>
+                    <div class="watch-info" id="watchInfo"></div>
+                </article>
+            </div>
+        </section>
+    </main>
+ 
+    <script>
+        const videos = [
+            {
+                id: 'video-1',
+                title: '东方书店',
+                description: '东方书店视频资料。',
+                location: '东方书店',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E4%B8%9C%E6%96%B9%E4%B9%A6%E5%BA%97.mp4',
+                poster: '',
+                duration: '',
+                tags: ['东方书店']
+            },
+            {
+                id: 'video-2',
+                title: '翠湖',
+                description: '翠湖视频资料。',
+                location: '翠湖',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E7%BF%A0%E6%B9%96.mp4',
+                poster: '',
+                duration: '',
+                tags: ['翠湖']
+            },
+            {
+                id: 'video-3',
+                title: '府甬道',
+                description: '府甬道视频资料。',
+                location: '府甬道',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E5%BA%9C%E7%94%AC%E9%81%93.mp4',
+                poster: '',
+                duration: '',
+                tags: ['府甬道']
+            },
+            {
+                id: 'video-4',
+                title: '抗战胜利纪念堂',
+                description: '抗战胜利纪念堂视频资料。',
+                location: '抗战胜利纪念堂',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E6%8A%97%E6%88%98%E8%83%9C%E5%88%A9%E7%BA%AA%E5%BF%B5%E5%A0%82.mp4',
+                poster: '',
+                duration: '',
+                tags: ['抗战胜利纪念堂']
+            },
+            {
+                id: 'video-5',
+                title: '陆军讲武堂',
+                description: '陆军讲武堂视频资料。',
+                location: '陆军讲武堂',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E9%99%86%E5%86%9B%E8%AE%B2%E6%AD%A6%E5%A0%82.mp4',
+                poster: '',
+                duration: '',
+                tags: ['陆军讲武堂']
+            },
+            {
+                id: 'video-6',
+                title: '西南联大旧址（一二一运动）',
+                description: '西南联大旧址（一二一运动）视频资料。',
+                location: '西南联大旧址（一二一运动）',
+                videoUrl: 'https://wanghar.oss-cn-chengdu.aliyuncs.com/%E8%A5%BF%E5%8D%97%E8%81%94%E5%A4%A7%E6%97%A7%E5%9D%80%EF%BC%88%E4%B8%80%E4%BA%8C%E4%B8%80%E8%BF%90%E5%8A%A8%EF%BC%89.mp4',
+                poster: '',
+                duration: '',
+                tags: ['西南联大旧址（一二一运动）']
+            }
+        ];
+ 
+        let selectedLocation = '全部地点';
+ 
+        function getBaseUrl() {
+            return window.location.href.split('?')[0].split('#')[0];
+        }
+ 
+        function findVideo(videoId) {
+            return videos.find(video => video.id === videoId);
+        }
+ 
+        function getLocations() {
+            return [...new Set(videos.map(video => video.location || '未分类'))];
+        }
+ 
+        function getKeyword() {
+            return document.getElementById('searchInput').value.trim().toLowerCase();
+        }
+ 
+        function isIframeUrl(url) {
+            return /bilibili\.com|youtube\.com|youku\.com|vimeo\.com|iframe/i.test(url);
+        }
+ 
+        function createVideoPlayer(video) {
+            if (!video.videoUrl) {
+                return `<div class="empty-video">还没有填写视频地址。<br>请在页面底部 videos 数组里，把 ${video.id} 的 videoUrl 改成你的视频地址。</div>`;
+            }
+ 
+            if (isIframeUrl(video.videoUrl)) {
+                return `<iframe src="${video.videoUrl}" allowfullscreen allow="autoplay; fullscreen; picture-in-picture"></iframe>`;
+            }
+ 
+            const posterAttr = video.poster ? ` poster="${video.poster}"` : '';
+            return `<video controls playsinline${posterAttr} src="${video.videoUrl}">你的浏览器不支持 video 标签。</video>`;
+        }
+ 
+        function matchesSearch(video, keyword) {
+            const text = [video.title, video.description, video.location, video.duration, ...(video.tags || [])].join(' ').toLowerCase();
+            return text.includes(keyword);
+        }
+ 
+        function getFilteredVideos() {
+            const keyword = getKeyword();
+            return videos.filter(video => {
+                const locationMatched = selectedLocation === '全部地点' || (video.location || '未分类') === selectedLocation;
+                return locationMatched && matchesSearch(video, keyword);
+            });
+        }
+ 
+        function renderLocationTabs() {
+            const locations = ['全部地点', ...getLocations()];
+            document.getElementById('locationTabs').innerHTML = locations.map(location => `
+                <button class="location-tab ${location === selectedLocation ? 'active' : ''}" onclick="selectLocation('${location}')">${location}</button>
+            `).join('');
+        }
+ 
+        function renderVideoList() {
+            const filtered = getFilteredVideos();
+            document.getElementById('videoCount').innerText = `${filtered.length} 个视频`;
+            document.getElementById('videoList').innerHTML = filtered.length ? filtered.map(video => createVideoCard(video)).join('') : '<div class="empty-state">没有找到符合条件的视频。</div>';
+        }
+ 
+        function createVideoCard(video) {
+            // 修改：只保留location标签，删掉tags数组循环渲染，消除重复标签
+            return `
+                <article class="video-card">
+                    <div class="thumb">
+                        ${video.poster ? `<img src="${video.poster}" alt="${video.title} 封面">` : ''}
+                        <span>${video.duration || '视频'}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>${video.title}</h3>
+                        <p class="desc">${video.description}</p>
+                        <div class="meta">
+                            <span class="tag">${video.location || '未分类'}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn" onclick="openVideo('${video.id}')">播放视频</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+ 
+        function renderLocationGroups() {
+            const groups = getLocations().map(location => {
+                const items = videos.filter(video => (video.location || '未分类') === location);
+                return `
+                    <div class="location-group">
+                        <h3>${location}</h3>
+                        <div class="grid">${items.map(video => createVideoCard(video)).join('')}</div>
+                    </div>
+                `;
+            }).join('');
+ 
+            document.getElementById('locationGroups').innerHTML = groups || '<div class="empty-state">暂无地点分类。</div>';
+        }
+ 
+        function hideAllPages() {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        }
+ 
+        function selectLocation(location) {
+            selectedLocation = location;
+            renderLocationTabs();
+            renderVideoList();
+            showVideoPage(false);
+        }
+ 
+        function syncSearchFromNav() {
+            document.getElementById('searchInput').value = document.getElementById('navSearchInput').value;
+            selectedLocation = '全部地点';
+            renderLocationTabs();
+            renderVideoList();
+            showVideoPage(false);
+        }
+ 
+        function syncSearchFromMain() {
+            document.getElementById('navSearchInput').value = document.getElementById('searchInput').value;
+            renderVideoList();
+        }
+ 
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('navSearchInput').value = '';
+            selectedLocation = '全部地点';
+            renderLocationTabs();
+            renderVideoList();
+        }
+ 
+        function openVideo(videoId) {
+            const video = findVideo(videoId) || videos[0];
+            if (!video) return;
+ 
+            history.pushState({ videoId: video.id }, '', `?video=${encodeURIComponent(video.id)}`);
+            showVideo(video.id);
+        }
+ 
+        function showVideo(videoId) {
+            const video = findVideo(videoId) || videos[0];
+            if (!video) return;
+ 
+            hideAllPages();
+            document.getElementById('watchPage').classList.add('active');
+            document.getElementById('videoFrame').innerHTML = createVideoPlayer(video);
+            document.getElementById('watchInfo').innerHTML = `
+                <h1>${video.title}</h1>
+                <p>${video.description}</p>
+                <div class="meta">
+                    <span class="tag">${video.location || '未分类'}</span>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        function showHome() {
+            history.pushState({}, '', getBaseUrl());
+            hideAllPages();
+            document.getElementById('homePage').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        function showIntroPage(updateHistory = true) {
+            if (updateHistory) history.pushState({ page: 'intro' }, '', `${getBaseUrl()}?page=intro`);
+            hideAllPages();
+            document.getElementById('introPage').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        function showVideoPage(updateHistory = true) {
+            if (updateHistory) history.pushState({ page: 'videos' }, '', `${getBaseUrl()}?page=videos`);
+            hideAllPages();
+            document.getElementById('videoPage').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        function showLocationPage(updateHistory = true) {
+            if (updateHistory) history.pushState({ page: 'locations' }, '', `${getBaseUrl()}?page=locations`);
+            hideAllPages();
+            document.getElementById('locationPage').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+ 
+        function updateStats() {
+            document.getElementById('totalVideoCount').innerText = videos.length;
+            document.getElementById('totalLocationCount').innerText = getLocations().length;
+        }
+ 
+        window.addEventListener('popstate', () => {
+            const params = new URLSearchParams(window.location.search);
+            const videoId = params.get('video');
+            const page = params.get('page');
+            if (videoId) {
+                showVideo(videoId);
+            } else if (page === 'intro') {
+                showIntroPage(false);
+            } else if (page === 'videos') {
+                showVideoPage(false);
+            } else if (page === 'locations') {
+                showLocationPage(false);
+            } else {
+                hideAllPages();
+                document.getElementById('homePage').classList.add('active');
+            }
+        });
+ 
+        function init() {
+            updateStats();
+            renderLocationTabs();
+            renderVideoList();
+            renderLocationGroups();
+            const params = new URLSearchParams(window.location.search);
+            const videoId = params.get('video');
+            const page = params.get('page');
+            if (videoId) {
+                showVideo(videoId);
+            } else if (page === 'intro') {
+                showIntroPage(false);
+            } else if (page === 'videos') {
+                showVideoPage(false);
+            } else if (page === 'locations') {
+                hideAllPages();
+                document.getElementById('locationPage').classList.add('active');
+            }
+        }
+ 
+        init();
+    </script>
+</body>
+</html>
