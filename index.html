@@ -468,6 +468,10 @@
             display: block;
             background: #000;
         }
+
+        video {
+            object-fit: contain;
+        }
  
         .empty-video {
             padding: 28px;
@@ -530,6 +534,11 @@
 
             .topbar-inner {
                 width: min(100% - 24px, 1180px);
+            }
+
+            .watch-info h1 {
+                font-size: 1.5rem;
+                line-height: 1.25;
             }
  
             #homePage.active,
@@ -758,7 +767,7 @@
             }
  
             const posterAttr = video.poster ? ` poster="${video.poster}"` : '';
-            return `<video controls playsinline${posterAttr} src="${video.videoUrl}">你的浏览器不支持 video 标签。</video>`;
+            return `<video controls playsinline webkit-playsinline x5-playsinline preload="metadata"${posterAttr}><source src="${video.videoUrl}" type="video/mp4">你的浏览器不支持 video 标签。</video>`;
         }
  
         function matchesSearch(video, keyword) {
@@ -974,3 +983,5 @@
     </script>
 </body>
 </html>
+
+
