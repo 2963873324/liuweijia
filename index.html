@@ -439,7 +439,7 @@
             margin-bottom: 12px;
             font-size: 1.35rem;
         }
-
+        /* 修改：播放页面改为单列，水平居中，移除双栏 */
         .watch-shell {
             max-width: 900px;
             margin: 0 auto;
@@ -643,6 +643,7 @@
         </section>
  
         <section id="watchPage" class="page">
+            <!-- 删除右侧同地点视频aside，只剩主播放面板 -->
             <div class="watch-shell">
                 <article class="panel">
                     <button class="btn secondary" onclick="showVideoPage()">返回视频专区</button>
@@ -779,6 +780,7 @@
         }
  
         function createVideoCard(video) {
+            // 修改：只保留location标签，删掉tags数组循环渲染，消除重复标签
             return `
                 <article class="video-card">
                     <div class="thumb">
@@ -813,20 +815,21 @@
             document.getElementById('locationGroups').innerHTML = groups || '<div class="empty-state">暂无地点分类。</div>';
         }
  
+        // ==========修复此处：彻底停止视频，解决切换页面声音残留==========
         function stopVideoPlayback() {
             const videoFrame = document.getElementById('videoFrame');
             if (!videoFrame) return;
-
+            //处理html5 video
             videoFrame.querySelectorAll('video').forEach(video => {
                 video.pause();
+                video.currentTime = 0;
                 video.removeAttribute('src');
                 video.load();
             });
-
+            //处理iframe，先置空白源，切断音视频流，再清空dom
             videoFrame.querySelectorAll('iframe').forEach(iframe => {
                 iframe.src = 'about:blank';
             });
-
             videoFrame.innerHTML = '';
         }
 
